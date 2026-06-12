@@ -3,6 +3,10 @@
 import { useQuery, useMutation } from "convex/react";
 import { Calendar, CheckCircle } from "lucide-react";
 
+// Convex codegen not available — use string paths with any cast
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const api = { bookings: { listBookings: "bookings:listBookings", createBooking: "bookings:createBooking" } } as any;
+
 interface Booking {
   _id: string;
   callId: string;
@@ -28,7 +32,7 @@ function formatDate(dayOfWeek: number, timeSlot: string): string {
 }
 
 export default function BookingsPage() {
-  const bookings = useQuery("bookings:listBookings") as Booking[] | undefined;
+  const bookings = useQuery(api.bookings.listBookings) as Booking[] | undefined;
   const loading = bookings === undefined;
 
   return (

@@ -3,6 +3,10 @@
 import { useQuery, useMutation } from "convex/react";
 import { Clock, RotateCcw } from "lucide-react";
 
+// Convex codegen not available — use string paths with any cast
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const api = { availability: { listAvailability: "availability:listAvailability", upsertAvailability: "availability:upsertAvailability", seedAvailability: "availability:seedAvailability" } } as any;
+
 interface Availability {
   _id: string;
   dayOfWeek: number;
@@ -19,9 +23,9 @@ const allSlots = [
 ];
 
 export default function AvailabilityPage() {
-  const availability = useQuery("availability:listAvailability") as Availability[] | undefined;
-  const upsertAvailability = useMutation("availability:upsertAvailability");
-  const seedAvailability = useMutation("availability:seedAvailability");
+  const availability = useQuery(api.availability.listAvailability) as Availability[] | undefined;
+  const upsertAvailability = useMutation(api.availability.upsertAvailability);
+  const seedAvailability = useMutation(api.availability.seedAvailability);
   const loading = availability === undefined;
 
   function isEnabled(day: number, slot: string): boolean {

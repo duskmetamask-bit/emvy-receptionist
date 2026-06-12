@@ -3,17 +3,25 @@
 import { useQuery } from "convex/react";
 import {
   PhoneIncoming, Voicemail, PhoneOutgoing, CheckCircle,
-  Phone, Clock,
+  Phone,
 } from "lucide-react";
+
+// Convex codegen not available — use string paths with any cast
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const api = {
+  calls: {
+    list: "calls:list" as const,
+    getStats: "calls:getStats" as const,
+  },
+} as any;
 
 interface Call {
   _id: string;
   callId: string;
   callerNumber: string;
   callerName?: string;
-  duration: number;
   outcome: "answered" | "voicemail" | "missed";
-  summary?: string;
+  duration: number;
   booked: boolean;
   createdAt: number;
 }
@@ -55,9 +63,8 @@ const statCards = [
 ];
 
 export default function CallsPage() {
-  const calls = useQuery("calls:list") as Call[] | undefined;
-  const stats = useQuery("calls:getStats") as Stats | undefined;
-
+  const calls = useQuery(api.calls.list) as Call[] | undefined;
+  const stats = useQuery(api.calls.getStats) as Stats | undefined;
   const loading = calls === undefined || stats === undefined;
 
   return (
