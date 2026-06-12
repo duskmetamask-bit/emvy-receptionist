@@ -1,0 +1,132 @@
+{
+  "name": "AI Receptionist Webhook Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-receptionist",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "ai-receptionist"
+    },
+    {
+      "parameters": {
+        "url": "https://jake-cleeve-51-11-229-79-13133.convex.cloud/api/mutation/calls/createCall",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "callId", "value": "={{ $json.body.call_id }}" },
+            { "name": "callerNumber", "value": "={{ $json.body.caller_number }}" },
+            { "name": "callerName", "value": "={{ $json.body.caller_name || null }}" },
+            { "name": "duration", "value": "={{ $json.body.duration || 0 }}" },
+            { "name": "outcome", "value": "={{ $json.body.outcome }}" },
+            { "name": "summary", "value": "={{ $json.body.summary || null }}" },
+            { "name": "transcript", "value": "={{ $json.body.transcript || null }}" },
+            { "name": "booked", "value": "={{ $json.body.booked || false }}" }
+          ]
+        },
+        "options": {
+          "headers": {
+            "headers": [
+              { "name": "Authorization", "value": "Bearer {{ $env.CONVEX_ADMIN_KEY }}" },
+              { "name": "Content-Type", "value": "application/json" }
+            ]
+          }
+        }
+      },
+      "id": "convex-write-call",
+      "name": "Write Call to Convex",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.caller_phone }}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "To", "value": "={{ $env.OWNER_PHONE }}" },
+            { "name": "From", "value": "={{ $env.TWILIO_PHONE_NUMBER }}" },
+            { "name": "Body", "value": "AI Receptionist: {{ $json.body.caller_name || 'Someone' }} called. Outcome: {{ $json.body.outcome }}. {{ $json.body.booked ? 'They booked an appointment.' : '' }}" }
+          ]
+        },
+        "options": {
+          "authentication": {
+            "type": "genericCredentialType",
+            "property": "twilio"
+          },
+          "headers": {
+            "headers": [
+              { "name": "Content-Type", "value": "application/json" }
+            ]
+          }
+        }
+      },
+      "id": "twilio-sms",
+      "name": "Send SMS via Twilio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.sendgrid.com/v3/mail/send",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "personalizations", "value": "[{ \"to\": [{ \"email\": \"{{ $env.GMAIL_USER }}\" }] }]" },
+            { "name": "from", "value": "{ \"email\": \"{{ $env.GMAIL_USER }}\" }" },
+            { "name": "subject", "value": "AI Receptionist: {{ $json.body.caller_name || 'Call' }} called" },
+            { "name": "content", "value": "[{ \"type\": \"text/plain\", \"value\": \"Caller: {{ $json.body.caller_name }} ({{ $json.body.caller_number }})\\nOutcome: {{ $json.body.outcome }}\\nDuration: {{ $json.body.duration }}s\\n{{ $json.body.booked ? 'Booked: Yes' : '' }}\\n{{ $json.body.summary ? 'Summary: ' + $json.body.summary : '' }}\" }]" }
+          ]
+        },
+        "options": {
+          "headers": {
+            "headers": [
+              { "name": "Authorization", "value": "Bearer {{ $env.SENDGRID_API_KEY }}" },
+              { "name": "Content-Type", "value": "application/json" }
+            ]
+          }
+        }
+      },
+      "id": "email-notify",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[
+        { "node": "Write Call to Convex", "type": "main", "index": 0 }
+      ]]
+    },
+    "Write Call to Convex": {
+      "main": [[
+        { "node": "Send SMS via Twilio", "type": "main", "index": 0 }
+      ]]
+    },
+    "Send SMS via Twilio": {
+      "main": [[
+        { "node": "Send Email Notification", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

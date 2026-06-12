@@ -1,0 +1,110 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #090E17;
+  --foreground: #F0F4FF;
+  --card: #0F1623;
+  --card-foreground: #F0F4FF;
+  --popover: #0F1623;
+  --popover-foreground: #F0F4FF;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #162030;
+  --secondary-foreground: #8B9BB4;
+  --muted: #162030;
+  --muted-foreground: #4A5568;
+  --accent: #162030;
+  --accent-foreground: #F0F4FF;
+  --destructive: #EF4444;
+  --border: rgba(255,255,255,0.06);
+  --input: rgba(255,255,255,0.06);
+  --ring: #3B82F6;
+  --radius: 0.5rem;
+
+  --chart-1: #3B82F6;
+  --chart-2: #22C55E;
+  --chart-3: #EAB308;
+  --chart-4: #A855F7;
+  --chart-5: #EF4444;
+}
+
+.dark {
+  --background: #090E17;
+  --foreground: #F0F4FF;
+  --card: #0F1623;
+  --card-foreground: #F0F4FF;
+  --popover: #0F1623;
+  --popover-foreground: #F0F4FF;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #162030;
+  --secondary-foreground: #8B9BB4;
+  --muted: #162030;
+  --muted-foreground: #4A5568;
+  --accent: #162030;
+  --accent-foreground: #F0F4FF;
+  --destructive: #EF4444;
+  --border: rgba(255,255,255,0.06);
+  --input: rgba(255,255,255,0.06);
+  --ring: #3B82F6;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgba(15, 22, 35, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.glass-card {
+  background: rgba(15, 22, 35, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.75rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* Status badge colors */
+.status-new { background: rgba(75,85,99,0.3); color: #9CA3AF; border: 1px solid rgba(75,85,99,0.3); }
+.status-called { background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.3); }
+.status-messaged { background: rgba(168,85,247,0.15); color: #C084FC; border: 1px solid rgba(168,85,247,0.3); }
+.status-emailed { background: rgba(234,179,8,0.15); color: #FACC15; border: 1px solid rgba(234,179,8,0.3); }
+.status-quoted { background: rgba(251,146,60,0.15); color: #FB923C; border: 1px solid rgba(251,146,60,0.3); }
+.status-won { background: rgba(34,197,94,0.15); color: #4ADE80; border: 1px solid rgba(34,197,94,0.3); }
+.status-lost { background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+
+/* Priority badges */
+.priority-high { background: rgba(239,68,68,0.2); color: #F87171; }
+.priority-medium { background: rgba(234,179,8,0.2); color: #FACC15; }
+.priority-low { background: rgba(75,85,99,0.3); color: #9CA3AF; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Page transition */
+.page-enter { animation: fadeIn 150ms ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
