@@ -1,0 +1,41 @@
+/**
+ * Design Tokens — AI Receptionist Admin Dashboard
+ * Reference: Linear (linear.app)
+ * Applied: 2026-06-13
+ */
+
+:root {
+  /* Canvas — cool near-black, never pure black */
+  --canvas: #08090a;
+  --panel: #0f1011;
+  --surface: #191a1b;
+  --surface-elevated: #1e1e20;
+
+  /* Text — warm near-white, not harsh */
+  --text-primary: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-muted: #8a8f98;
+  --text-subtle: #62666d;
+
+  /* Brand accent — indigo-violet, used sparingly */
+  --accent: #5e6ad2;
+  --accent-bright: #7170ff;
+  --accent-hover: #828fff;
+
+  /* Surfaces — translucent, never solid */
+  --surface-1: rgba(255, 255, 255, 0.02);
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --surface-3: rgba(255, 255, 255, 0.06);
+  --surface-4: rgba(255, 255, 255, 0.08);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-standard: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Status */
+  --green: #27a644;
+  --green-bright: #10b981;
+  --red: #ef4444;
+  --yellow: #eab308;
+}
