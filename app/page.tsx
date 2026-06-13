@@ -2,17 +2,11 @@
 
 import { useQuery } from "convex/react";
 import {
-  PhoneIncoming, Voicemail, PhoneOutgoing, CheckCircle,
-  Phone,
+  PhoneIncoming, Voicemail, PhoneOutgoing, CheckCircle, Phone,
 } from "lucide-react";
 
-// Convex codegen not available — use string paths with any cast
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const api = {
-  calls: {
-    list: "calls:list" as const,
-    getStats: "calls:getStats" as const,
-  },
+  calls: { list: "calls:list" as const, getStats: "calls:getStats" as const },
 } as any;
 
 interface Call {
@@ -25,7 +19,6 @@ interface Call {
   booked: boolean;
   createdAt: number;
 }
-
 interface Stats {
   total: number;
   answered: number;
@@ -34,32 +27,29 @@ interface Stats {
   booked: number;
 }
 
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+function formatDuration(s: number) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
 }
 
-function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString("en-AU", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "numeric",
-    month: "short",
+function formatTime(ts: number) {
+  return new Date(ts).toLocaleString("en-AU", {
+    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
   });
 }
 
 const outcomeConfig = {
-  answered: { label: "Answered", icon: PhoneIncoming, className: "status-called" },
-  voicemail: { label: "Voicemail", icon: Voicemail, className: "status-messaged" },
-  missed: { label: "Missed", icon: PhoneOutgoing, className: "status-new" },
+  answered: { label: "Answered", icon: PhoneIncoming, cls: "badge-answered" },
+  voicemail: { label: "Voicemail", icon: Voicemail, cls: "badge-voicemail" },
+  missed: { label: "Missed", icon: PhoneOutgoing, cls: "badge-missed" },
 };
 
 const statCards = [
-  { key: "total", label: "Total Calls", icon: Phone, color: "#3B82F6" },
-  { key: "answered", label: "Answered", icon: PhoneIncoming, color: "#4ADE80" },
-  { key: "voicemail", label: "Voicemail", icon: Voicemail, color: "#C084FC" },
-  { key: "booked", label: "Booked", icon: CheckCircle, color: "#FACC15" },
+  { key: "total", label: "Total Calls" },
+  { key: "answered", label: "Answered" },
+  { key: "voicemail", label: "Voicemail" },
+  { key: "booked", label: "Booked" },
 ];
 
 export default function CallsPage() {
@@ -68,42 +58,89 @@ export default function CallsPage() {
   const loading = calls === undefined || stats === undefined;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div
+      className="min-h-screen px-6 py-6"
+      style={{ background: "var(--canvas)" }}
+    >
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)", letterSpacing: "-0.02em" }}>
+          <h1
+            className="text-xl"
+            style={{
+              color: "var(--text-primary)",
+              fontWeight: 590,
+              letterSpacing: "-0.025em",
+            }}
+          >
             Call Log
           </h1>
-          <p className="text-sm mt-1" style={{ color: "var(--secondary-foreground)" }}>
+          <p
+            className="text-sm mt-0.5"
+            style={{ color: "var(--text-muted)", fontSize: 13 }}
+          >
             All inbound calls to your AI Receptionist
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium"
-          style={{ background: "rgba(34,197,94,0.12)", color: "#4ADE80", border: "1px solid rgba(34,197,94,0.2)" }}>
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#4ADE80" }} />
-          Live
+        {/* Live badge */}
+        <div
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+          style={{
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "transparent",
+          }}
+        >
+          <span
+            className="inline-block rounded-full"
+            style={{
+              width: 6,
+              height: 6,
+              background: "#10b981",
+              boxShadow: "0 0 6px #10b981",
+            }}
+          />
+          <span
+            style={{ color: "var(--text-muted)", fontSize: 11, fontWeight: 510 }}
+          >
+            Live
+          </span>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      {/* Stat cards */}
+      <div className="grid grid-cols-4 gap-3 mb-6">
         {statCards.map((s) => {
-          const Icon = s.icon;
           const val = stats?.[s.key as keyof Stats] ?? 0;
           return (
             <div
               key={s.key}
-              className="rounded-xl p-4 space-y-1"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+              className="rounded-lg px-4 py-3"
+              style={{
+                background: "var(--surface-1)",
+                border: "1px solid var(--border-subtle)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--secondary-foreground)" }}>
-                  {s.label}
-                </span>
-                <Icon size={14} style={{ color: s.color }} />
+              <div
+                className="text-xs uppercase tracking-wider mb-2"
+                style={{
+                  color: "var(--text-muted)",
+                  fontWeight: 510,
+                  letterSpacing: "0.06em",
+                  fontSize: 11,
+                }}
+              >
+                {s.label}
               </div>
-              <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+              <div
+                className="text-3xl"
+                style={{
+                  color: "var(--text-primary)",
+                  fontWeight: 510,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1,
+                }}
+              >
                 {loading ? "—" : val}
               </div>
             </div>
@@ -112,68 +149,109 @@ export default function CallsPage() {
       </div>
 
       {/* Calls table */}
-      <div className="rounded-xl overflow-hidden" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+      <div
+        className="rounded-lg overflow-hidden"
+        style={{
+          background: "var(--surface-1)",
+          border: "1px solid var(--border-subtle)",
+        }}
+      >
         {loading ? (
-          <div className="p-12 text-center" style={{ color: "var(--secondary-foreground)" }}>
-            Loading calls...
+          <div className="py-16 text-center" style={{ color: "var(--text-muted)" }}>
+            <p style={{ fontSize: 13 }}>Loading...</p>
           </div>
         ) : !calls || calls.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
-            <Phone size={32} style={{ color: "var(--muted-foreground)" }} className="mx-auto" />
-            <div>
-              <p className="font-medium" style={{ color: "var(--foreground)" }}>No calls yet</p>
-              <p className="text-sm mt-1" style={{ color: "var(--secondary-foreground)" }}>
-                Your AI Receptionist is ready. Calls will appear here when they come in.
-              </p>
-            </div>
+          <div className="py-16 text-center space-y-2">
+            <Phone
+              size={28}
+              style={{ color: "var(--text-subtle)", margin: "0 auto" }}
+            />
+            <p style={{ color: "var(--text-primary)", fontWeight: 510, fontSize: 14 }}>
+              No calls yet
+            </p>
+            <p style={{ color: "var(--text-muted)", fontSize: 13 }}>
+              Your AI Receptionist is ready. Calls will appear here.
+            </p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b" style={{ borderColor: "var(--border)" }}>
+              <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                 {["Caller", "Outcome", "Duration", "Booked", "Time"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide"
-                    style={{ color: "var(--secondary-foreground)" }}>
+                  <th
+                    key={h}
+                    className="px-4 py-2.5 text-left"
+                    style={{
+                      color: "var(--text-muted)",
+                      fontWeight: 510,
+                      fontSize: 11,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
+            <tbody>
               {calls.map((call) => {
                 const cfg = outcomeConfig[call.outcome] ?? outcomeConfig.missed;
                 const Icon = cfg.icon;
                 return (
-                  <tr key={call._id} className="transition-colors hover:bg-white/[0.02]">
+                  <tr
+                    key={call._id}
+                    className="transition-colors duration-100"
+                    style={{
+                      borderBottom: "1px solid var(--border-subtle)",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = "rgba(255,255,255,0.02)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "transparent")
+                    }
+                  >
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+                      <div style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 510 }}>
                         {call.callerName || "Unknown"}
                       </div>
-                      <div className="text-xs" style={{ color: "var(--secondary-foreground)" }}>
+                      <div style={{ color: "var(--text-muted)", fontSize: 11, marginTop: 1 }}>
                         {call.callerNumber}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.className}`}>
-                        <Icon size={10} />
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.cls}`}
+                        style={{ fontWeight: 510 }}
+                      >
+                        <Icon size={9} />
                         {cfg.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm" style={{ color: "var(--secondary-foreground)" }}>
+                    <td
+                      className="px-4 py-3"
+                      style={{ color: "var(--text-muted)", fontSize: 12 }}
+                    >
                       {formatDuration(call.duration)}
                     </td>
                     <td className="px-4 py-3">
                       {call.booked ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                          style={{ background: "rgba(34,197,94,0.12)", color: "#4ADE80" }}>
-                          <CheckCircle size={10} />
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium badge-booked"
+                          style={{ fontWeight: 510 }}
+                        >
+                          <CheckCircle size={9} />
                           Booked
                         </span>
                       ) : (
-                        <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>—</span>
+                        <span style={{ color: "var(--text-subtle)", fontSize: 11 }}>—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs" style={{ color: "var(--secondary-foreground)" }}>
+                    <td
+                      className="px-4 py-3"
+                      style={{ color: "var(--text-muted)", fontSize: 11 }}
+                    >
                       {formatTime(call.createdAt)}
                     </td>
                   </tr>

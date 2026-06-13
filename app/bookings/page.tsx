@@ -1,11 +1,14 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
-import { Calendar, CheckCircle } from "lucide-react";
+import { useQuery } from "convex/react";
+import { Calendar } from "lucide-react";
 
-// Convex codegen not available — use string paths with any cast
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const api = { bookings: { listBookings: "bookings:listBookings", createBooking: "bookings:createBooking" } } as any;
+const api = {
+  bookings: {
+    listBookings: "bookings:listBookings" as const,
+    createBooking: "bookings:createBooking" as const,
+  },
+} as any;
 
 interface Booking {
   _id: string;
@@ -36,75 +39,153 @@ export default function BookingsPage() {
   const loading = bookings === undefined;
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)", letterSpacing: "-0.02em" }}>
+    <div className="min-h-screen px-6 py-6" style={{ background: "var(--canvas)" }}>
+      {/* Page header */}
+      <div className="mb-6">
+        <h1
+          className="text-xl"
+          style={{ color: "var(--text-primary)", fontWeight: 590, letterSpacing: "-0.025em" }}
+        >
           Bookings
         </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--secondary-foreground)" }}>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)", fontSize: 13 }}>
           Appointments booked through your AI Receptionist
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-          <div className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: "var(--secondary-foreground)" }}>Total</div>
-          <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>{loading ? "—" : bookings.length}</div>
-        </div>
-        <div className="rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-          <div className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: "var(--secondary-foreground)" }}>This Week</div>
-          <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>—</div>
-        </div>
-        <div className="rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-          <div className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: "var(--secondary-foreground)" }}>Confirmed</div>
-          <div className="text-2xl font-bold" style={{ color: "#4ADE80" }}>{loading ? "—" : bookings.length}</div>
-        </div>
+      {/* Stat row */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        {[
+          { label: "Total", val: loading ? "—" : bookings.length, accent: false },
+          { label: "This Week", val: "—", accent: false },
+          { label: "Confirmed", val: loading ? "—" : bookings.length, accent: true },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="rounded-lg px-4 py-3"
+            style={{
+              background: "var(--surface-1)",
+              border: "1px solid var(--border-subtle)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+            }}
+          >
+            <div
+              className="text-xs uppercase tracking-wider mb-2"
+              style={{ color: "var(--text-muted)", fontWeight: 510, letterSpacing: "0.06em", fontSize: 11 }}
+            >
+              {s.label}
+            </div>
+            <div
+              className="text-3xl"
+              style={{
+                color: s.accent ? "#10b981" : "var(--text-primary)",
+                fontWeight: 510,
+                letterSpacing: "-0.03em",
+                lineHeight: 1,
+              }}
+            >
+              {s.val}
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+      {/* Table */}
+      <div
+        className="rounded-lg overflow-hidden"
+        style={{ background: "var(--surface-1)", border: "1px solid var(--border-subtle)" }}
+      >
         {loading ? (
-          <div className="p-12 text-center" style={{ color: "var(--secondary-foreground)" }}>Loading...</div>
+          <div className="py-16 text-center" style={{ color: "var(--text-muted)", fontSize: 13 }}>
+            Loading...
+          </div>
         ) : !bookings || bookings.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
-            <Calendar size={32} style={{ color: "var(--muted-foreground)" }} className="mx-auto" />
-            <div>
-              <p className="font-medium" style={{ color: "var(--foreground)" }}>No bookings yet</p>
-              <p className="text-sm mt-1" style={{ color: "var(--secondary-foreground)" }}>
-                Bookings will appear here when callers confirm an appointment.
-              </p>
-            </div>
+          <div className="py-16 text-center space-y-2">
+            <Calendar size={28} style={{ color: "var(--text-subtle)", margin: "0 auto" }} />
+            <p style={{ color: "var(--text-primary)", fontWeight: 510, fontSize: 14 }}>
+              No bookings yet
+            </p>
+            <p style={{ color: "var(--text-muted)", fontSize: 13 }}>
+              Bookings will appear here when callers confirm an appointment.
+            </p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b" style={{ borderColor: "var(--border)" }}>
+              <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                 {["Caller", "Phone", "Appointment", "Notes"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide"
-                    style={{ color: "var(--secondary-foreground)" }}>{h}</th>
+                  <th
+                    key={h}
+                    className="px-4 py-2.5 text-left"
+                    style={{
+                      color: "var(--text-muted)",
+                      fontWeight: 510,
+                      fontSize: 11,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
+            <tbody>
               {bookings.map((b) => (
-                <tr key={b._id} className="transition-colors hover:bg-white/[0.02]">
+                <tr
+                  key={b._id}
+                  className="transition-colors duration-100"
+                  style={{ borderBottom: "1px solid var(--border-subtle)" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "rgba(255,255,255,0.02)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
+                >
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
-                        style={{ background: "rgba(59,130,246,0.15)", color: "#60A5FA" }}>
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="flex items-center justify-center rounded-full flex-shrink-0"
+                        style={{
+                          width: 28,
+                          height: 28,
+                          background: "rgba(94,106,210,0.15)",
+                          color: "#828fff",
+                          fontWeight: 590,
+                          fontSize: 12,
+                        }}
+                      >
                         {b.callerName.charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>{b.callerName}</span>
+                      <span
+                        style={{
+                          color: "var(--text-primary)",
+                          fontSize: 13,
+                          fontWeight: 510,
+                        }}
+                      >
+                        {b.callerName}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm" style={{ color: "var(--secondary-foreground)" }}>{b.callerPhone}</td>
+                  <td
+                    className="px-4 py-3"
+                    style={{ color: "var(--text-muted)", fontSize: 13 }}
+                  >
+                    {b.callerPhone}
+                  </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5 text-sm" style={{ color: "var(--foreground)" }}>
-                      <Calendar size={12} style={{ color: "var(--secondary-foreground)" }} />
+                    <div className="flex items-center gap-1.5" style={{ color: "var(--text-primary)", fontSize: 13 }}>
+                      <Calendar size={11} style={{ color: "var(--text-muted)" }} />
                       {formatDate(b.dayOfWeek, b.timeSlot)}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm" style={{ color: "var(--secondary-foreground)" }}>
-                    {b.notes || <span style={{ color: "var(--muted-foreground)" }}>—</span>}
+                  <td
+                    className="px-4 py-3"
+                    style={{ color: b.notes ? "var(--text-muted)" : "var(--text-subtle)", fontSize: 12 }}
+                  >
+                    {b.notes || "—"}
                   </td>
                 </tr>
               ))}
